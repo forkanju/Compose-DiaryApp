@@ -15,7 +15,6 @@ import com.stevdzasan.messagebar.ContentWithMessageBar
 import com.stevdzasan.messagebar.MessageBarState
 import com.stevdzasan.onetap.OneTapSignInState
 import com.stevdzasan.onetap.OneTapSignInWithGoogle
-import java.lang.Exception
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @ExperimentalMaterial3Api
@@ -24,7 +23,9 @@ fun AuthenticationScreen(
     loadingState: Boolean,
     oneTapState: OneTapSignInState,
     messageBarState: MessageBarState,
-    onButtonClicked: () -> Unit
+    onButtonClicked: () -> Unit,
+    onTokenIdReceived: (String) -> Unit,
+    onDialogDismissed: (String) -> Unit
 ) {
     Scaffold(
         modifier = Modifier
@@ -47,12 +48,13 @@ fun AuthenticationScreen(
         clientId = CLIENT_ID,
         onTokenIdReceived = { tokenId ->
             Log.d("AuthenticationScreen", "token: $tokenId")
-            messageBarState.addSuccess("Authenticated successfully!")
+            onTokenIdReceived(tokenId)
 
         },
         onDialogDismissed = { message ->
             Log.d("AuthenticationScreen", "message: $message")
-            messageBarState.addError(Exception(message))
+            onDialogDismissed(message)
+
         }
     )
 }
