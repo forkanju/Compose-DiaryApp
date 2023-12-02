@@ -8,6 +8,7 @@ import com.example.compose_diaryapp.util.Constants.APP_ID
 import io.realm.kotlin.mongodb.App
 import io.realm.kotlin.mongodb.Credentials
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -17,6 +18,8 @@ class AuthenticationViewModel : ViewModel() {
     // and can read from any other class as i set it's as public getter with public var keyword
     var loadingState = mutableStateOf(false)
         private set
+    var authenticated = mutableStateOf(false)
+        private set
 
     fun setLoading(loading: Boolean) {
         loadingState.value = loading
@@ -24,7 +27,7 @@ class AuthenticationViewModel : ViewModel() {
 
     fun signInWithMongodbAtlas(
         tokenId: String,
-        onSuccess: (Boolean) -> Unit,
+        onSuccess: () -> Unit,
         onError: (Exception) -> Unit
     ) {
         viewModelScope.launch {
@@ -39,7 +42,14 @@ class AuthenticationViewModel : ViewModel() {
                 //we do it here in Main thread because this onSuccess will triggered from our composable(screen) function
                 withContext(Dispatchers.Main) {
                     Log.d("AuthenticationViewModel", "onSuccess: $result")
-                    onSuccess(result)
+                    if(result){
+                        onSuccess()
+                        delay(600)
+                        authenticated.value = true
+                    }else{
+                        onError(Exception("User is not logged in."))
+                    }
+
                 }
             } catch (error: Exception) {
                 withContext(Dispatchers.Main) {

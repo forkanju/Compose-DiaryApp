@@ -2,9 +2,17 @@ package com.example.compose_diaryapp.navigation
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -14,9 +22,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.compose_diaryapp.presentation.screens.auth.AuthenticationScreen
 import com.example.compose_diaryapp.presentation.screens.auth.AuthenticationViewModel
+import com.example.compose_diaryapp.util.Constants.APP_ID
 import com.example.compose_diaryapp.util.Constants.WRITE_SCREEN_ARGUMENT_KEY
 import com.stevdzasan.messagebar.rememberMessageBarState
 import com.stevdzasan.onetap.rememberOneTapSignInState
+import io.realm.kotlin.mongodb.App
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.N)
@@ -27,7 +39,13 @@ fun SetupNavGraph(
 ) {
 
     NavHost(startDestination = startDestination, navController = navController) {
-        authenticationRoute()
+        authenticationRoute(
+            navigateToHome = {
+                navController.popBackStack()
+                navController.navigate(Screen.Home.route)
+            }
+
+        )
         homeRoute()
         writeRoute()
     }
@@ -35,16 +53,20 @@ fun SetupNavGraph(
 }
 
 @ExperimentalMaterial3Api
-fun NavGraphBuilder.authenticationRoute() {
+fun NavGraphBuilder.authenticationRoute(
+    navigateToHome: () -> Unit
+) {
     composable(route = Screen.Authentication.route) {
 
         val viewModel: AuthenticationViewModel = viewModel()
         //here using by delegated keyword its changing loadingState and viewModel.loadingState vice-versa
         val loadingState by viewModel.loadingState
+        val authenticated by viewModel.authenticated
         val oneTapState = rememberOneTapSignInState()
         val messageBarState = rememberMessageBarState()
 
         AuthenticationScreen(
+            authenticated = authenticated,
             loadingState = loadingState,
             oneTapState = oneTapState,
             messageBarState = messageBarState,
@@ -56,10 +78,8 @@ fun NavGraphBuilder.authenticationRoute() {
                 viewModel.signInWithMongodbAtlas(
                     tokenId = tokenId,
                     onSuccess = {
-                        if (it){
-                            messageBarState.addSuccess("Successfully Authenticated!")
-                            viewModel.setLoading(false)
-                        }
+                        messageBarState.addSuccess("Successfully Authenticated!")
+                        viewModel.setLoading(false)
 
                     },
                     onError = { error ->
@@ -71,14 +91,29 @@ fun NavGraphBuilder.authenticationRoute() {
             },
             onDialogDismissed = { message ->
                 messageBarState.addError(Exception(message))
-            }
+                viewModel.setLoading(false)
+            },
+            navigateToHome = navigateToHome
         )
     }
 }
 
 fun NavGraphBuilder.homeRoute() {
     composable(route = Screen.Home.route) {
-
+        val scope = rememberCoroutineScope()
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Button(onClick = {
+                scope.launch(Dispatchers.IO) {
+                    App.create(APP_ID).currentUser?.logOut()
+                }
+            }) {
+                Text(text = "Logout")
+            }
+        }
     }
 }
 
