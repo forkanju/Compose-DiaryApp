@@ -120,6 +120,7 @@ fun ComposeDiaryAppTheme(
         }
         val windowInsetsController = WindowCompat.getInsetsController(window, view)
 
+        //this two line of code for showing status bar icon, text on light and dark mode
         windowInsetsController.isAppearanceLightStatusBars = !darkTheme
         windowInsetsController.isAppearanceLightNavigationBars = !darkTheme
     }
