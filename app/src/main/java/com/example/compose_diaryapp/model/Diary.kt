@@ -8,11 +8,11 @@ import io.realm.kotlin.types.RealmObject
 import io.realm.kotlin.types.annotations.PrimaryKey
 
 
-class Diary : RealmObject {
+open class Diary : RealmObject {
 
     @PrimaryKey
     var _id: ObjectId = ObjectId.create()
-    var ownerId: String = ""
+    var ownerId: String = "" //owner_id
     var mood: String = Mood.Neutral.name
     var title: String = ""
     var description: String = ""

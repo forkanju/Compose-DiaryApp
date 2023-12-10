@@ -9,6 +9,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
+import com.example.compose_diaryapp.data.repository.MongoDB
 import com.example.compose_diaryapp.navigation.Screen
 import com.example.compose_diaryapp.navigation.SetupNavGraph
 import com.example.compose_diaryapp.ui.theme.ComposeDiaryAppTheme
