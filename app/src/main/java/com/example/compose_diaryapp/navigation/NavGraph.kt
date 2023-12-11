@@ -16,6 +16,7 @@ import com.example.compose_diaryapp.presentation.components.DisplayAlertDialog
 import com.example.compose_diaryapp.presentation.screens.auth.AuthenticationScreen
 import com.example.compose_diaryapp.presentation.screens.auth.AuthenticationViewModel
 import com.example.compose_diaryapp.presentation.screens.home.HomeScreen
+import com.example.compose_diaryapp.presentation.screens.home.HomeViewModel
 import com.example.compose_diaryapp.util.Constants.APP_ID
 import com.example.compose_diaryapp.util.Constants.WRITE_SCREEN_ARGUMENT_KEY
 import com.stevdzasan.messagebar.rememberMessageBarState
@@ -110,13 +111,16 @@ fun NavGraphBuilder.homeRoute(
     navigateToAuth: () -> Unit
 ) {
     composable(route = Screen.Home.route) {
+        val viewModel: HomeViewModel = viewModel()
+        val diaries by viewModel.diaries
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Open)
         var signOutDialogOpened by remember {
             mutableStateOf(false)
         }
-
         val scope = rememberCoroutineScope()
+
         HomeScreen(
+            diaries = diaries,
             drawerState = drawerState,
             onMenuClicked = {
                 scope.launch {
@@ -126,7 +130,7 @@ fun NavGraphBuilder.homeRoute(
             onSignOutClicked = { signOutDialogOpened = true },
             navigateToWrite = navigateToWrite
         )
-        LaunchedEffect(key1 = Unit){
+        LaunchedEffect(key1 = Unit) {
             MongoDB.configureTheRealm()
         }
 
@@ -140,7 +144,7 @@ fun NavGraphBuilder.homeRoute(
                     val user = App.create(APP_ID).currentUser
                     if (user != null) {
                         user.logOut()
-                        withContext(Dispatchers.Main){
+                        withContext(Dispatchers.Main) {
                             navigateToAuth()
                         }
                     }
