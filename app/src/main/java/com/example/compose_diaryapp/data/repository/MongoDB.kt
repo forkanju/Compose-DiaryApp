@@ -31,7 +31,7 @@ object MongoDB : MongoRepository {
             val config = SyncConfiguration.Builder(user, setOf(Diary::class))
                 .initialSubscriptions { sub ->
                     add(
-                        query = sub.query("ownerId == $0", user.identity),
+                        query = sub.query<Diary>("ownerId == $0", user.identity),
                         name = "User's Diaries"
                     )
                 }
