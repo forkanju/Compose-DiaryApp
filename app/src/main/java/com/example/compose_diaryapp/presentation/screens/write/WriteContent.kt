@@ -1,8 +1,8 @@
 package com.example.compose_diaryapp.presentation.screens.write
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -25,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -68,14 +69,20 @@ fun WriteContent(
             HorizontalPager(
                 state = pagerState
             ) { page ->
-                AsyncImage(
-                    modifier = Modifier.size(120.dp),
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(Mood.values()[page].icon)
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = "Mood Image"
-                )
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    AsyncImage(
+                        modifier = Modifier.size(120.dp),
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(Mood.values()[page].icon)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = "Mood Image"
+                    )
+                }
+
             }
             Spacer(modifier = Modifier.height(30.dp))
             TextField(
