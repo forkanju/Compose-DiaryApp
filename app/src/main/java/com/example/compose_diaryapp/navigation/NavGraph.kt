@@ -2,6 +2,8 @@ package com.example.compose_diaryapp.navigation
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -12,11 +14,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.compose_diaryapp.data.repository.MongoDB
+import com.example.compose_diaryapp.model.Mood
 import com.example.compose_diaryapp.presentation.components.DisplayAlertDialog
 import com.example.compose_diaryapp.presentation.screens.auth.AuthenticationScreen
 import com.example.compose_diaryapp.presentation.screens.auth.AuthenticationViewModel
 import com.example.compose_diaryapp.presentation.screens.home.HomeScreen
 import com.example.compose_diaryapp.presentation.screens.home.HomeViewModel
+import com.example.compose_diaryapp.presentation.screens.write.WriteScreen
 import com.example.compose_diaryapp.util.Constants.APP_ID
 import com.example.compose_diaryapp.util.Constants.WRITE_SCREEN_ARGUMENT_KEY
 import com.example.compose_diaryapp.util.RequestState
@@ -57,7 +61,9 @@ fun SetupNavGraph(
             },
             onDataLoaded = onDataLoaded
         )
-        writeRoute()
+        writeRoute(onBackPressed = {
+            navController.popBackStack()
+        })
     }
 
 }
@@ -76,8 +82,8 @@ fun NavGraphBuilder.authenticationRoute(
         val authenticated by viewModel.authenticated
         val oneTapState = rememberOneTapSignInState()
         val messageBarState = rememberMessageBarState()
-        
-        LaunchedEffect(key1 = Unit){
+
+        LaunchedEffect(key1 = Unit) {
             onDataLoaded()
         }
 
@@ -130,8 +136,8 @@ fun NavGraphBuilder.homeRoute(
         }
         val scope = rememberCoroutineScope()
 
-        LaunchedEffect(key1 = diaries){
-            if (diaries !is RequestState.Loading){
+        LaunchedEffect(key1 = diaries) {
+            if (diaries !is RequestState.Loading) {
                 onDataLoaded()
             }
         }
@@ -171,7 +177,10 @@ fun NavGraphBuilder.homeRoute(
     }
 }
 
-fun NavGraphBuilder.writeRoute() {
+@OptIn(ExperimentalFoundationApi::class)
+fun NavGraphBuilder.writeRoute(
+    onBackPressed: () -> Unit
+) {
     composable(
         route = Screen.Write.route,
         arguments = listOf(navArgument(name = WRITE_SCREEN_ARGUMENT_KEY) {
@@ -180,6 +189,13 @@ fun NavGraphBuilder.writeRoute() {
             defaultValue = null
         })
     ) {
+        val pagerState = rememberPagerState(pageCount = { Mood.values().size })
 
+        WriteScreen(
+            selectedDiary = null,
+            pagerState = pagerState,
+            onDeleteConfirmed = {},
+            onBackPressed = onBackPressed
+        )
     }
 }
