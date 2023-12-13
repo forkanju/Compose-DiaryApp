@@ -5,8 +5,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.compose_diaryapp.data.repository.MongoDB
 import com.example.compose_diaryapp.model.Mood
 import com.example.compose_diaryapp.util.Constants.WRITE_SCREEN_ARGUMENT_KEY
+import com.example.compose_diaryapp.util.RequestState
+import io.realm.kotlin.types.ObjectId
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class WriteViewModel(
     //it will allow us to access diary id that we are passing to our right screen.
@@ -19,6 +25,7 @@ class WriteViewModel(
 
     init {
         getDiaryIdArgument()
+        fetchSelectedDiary()
     }
 
     private fun getDiaryIdArgument() {
@@ -28,6 +35,34 @@ class WriteViewModel(
             )
         )
     }
+
+    private fun fetchSelectedDiary() {
+        if (uiState.selectedDiaryId != null) {
+            viewModelScope.launch(Dispatchers.Main) {
+                val diary = MongoDB.getSelectedDiary(
+                    diaryId = ObjectId.from(uiState.selectedDiaryId!!)
+                )
+                if (diary is RequestState.Success) {
+                    setTitle(diary.data.title)
+                    setDescription(diary.data.description)
+                    setMood(Mood.valueOf(diary.data.mood))
+                }
+            }
+        }
+    }
+
+    fun setTitle(title: String) {
+        uiState = uiState.copy(title = title)
+    }
+
+    fun setDescription(description: String) {
+        uiState = uiState.copy(description = description)
+    }
+
+    fun setMood(mood: Mood) {
+        uiState = uiState.copy(mood = mood)
+    }
+
 
 }
 

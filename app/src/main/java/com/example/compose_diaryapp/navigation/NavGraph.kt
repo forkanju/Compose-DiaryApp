@@ -41,7 +41,6 @@ fun SetupNavGraph(
     startDestination: String,
     navController: NavHostController,
     onDataLoaded: () -> Unit
-
 ) {
 
     NavHost(startDestination = startDestination, navController = navController) {
@@ -209,8 +208,11 @@ fun NavGraphBuilder.writeRoute(
         }
 
         WriteScreen(
+            uiState = uiState,
             selectedDiary = null,
             pagerState = pagerState,
+            onTitleChanged = { viewModel.setTitle(title = it) },
+            onDescriptionChanged = { viewModel.setDescription(description = it) },
             onDeleteConfirmed = {},
             onBackPressed = onBackPressed
         )
