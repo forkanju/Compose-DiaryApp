@@ -1,6 +1,7 @@
 package com.example.compose_diaryapp.navigation
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.pager.rememberPagerState
@@ -21,6 +22,7 @@ import com.example.compose_diaryapp.presentation.screens.auth.AuthenticationView
 import com.example.compose_diaryapp.presentation.screens.home.HomeScreen
 import com.example.compose_diaryapp.presentation.screens.home.HomeViewModel
 import com.example.compose_diaryapp.presentation.screens.write.WriteScreen
+import com.example.compose_diaryapp.presentation.screens.write.WriteViewModel
 import com.example.compose_diaryapp.util.Constants.APP_ID
 import com.example.compose_diaryapp.util.Constants.WRITE_SCREEN_ARGUMENT_KEY
 import com.example.compose_diaryapp.util.RequestState
@@ -59,11 +61,17 @@ fun SetupNavGraph(
                 navController.popBackStack()
                 navController.navigate(Screen.Authentication.route)
             },
-            onDataLoaded = onDataLoaded
+            onDataLoaded = onDataLoaded,
+            navigateToWriteWithArgs = {
+                navController.navigate(Screen.Write.passDiaryId(diaryId = it))
+            }
+
         )
-        writeRoute(onBackPressed = {
-            navController.popBackStack()
-        })
+
+        writeRoute(
+            onBackPressed = {
+                navController.popBackStack()
+            })
     }
 
 }
@@ -124,6 +132,7 @@ fun NavGraphBuilder.authenticationRoute(
 @RequiresApi(Build.VERSION_CODES.N)
 fun NavGraphBuilder.homeRoute(
     navigateToWrite: () -> Unit,
+    navigateToWriteWithArgs: (String) -> Unit,
     navigateToAuth: () -> Unit,
     onDataLoaded: () -> Unit
 ) {
@@ -151,8 +160,10 @@ fun NavGraphBuilder.homeRoute(
                 }
             },
             onSignOutClicked = { signOutDialogOpened = true },
+            navigateToWriteWithArgs = navigateToWriteWithArgs,
             navigateToWrite = navigateToWrite
         )
+
         LaunchedEffect(key1 = Unit) {
             MongoDB.configureTheRealm()
         }
@@ -189,7 +200,13 @@ fun NavGraphBuilder.writeRoute(
             defaultValue = null
         })
     ) {
+        val viewModel: WriteViewModel = viewModel()
+        val uiState = viewModel.uiState
         val pagerState = rememberPagerState(pageCount = { Mood.values().size })
+
+        LaunchedEffect(key1 = uiState) {
+            Log.d("SelectedDiary", "${uiState.selectedDiaryId}")
+        }
 
         WriteScreen(
             selectedDiary = null,

@@ -37,6 +37,7 @@ fun HomeScreen(
     drawerState: DrawerState,
     onMenuClicked: () -> Unit,
     onSignOutClicked: () -> Unit,
+    navigateToWriteWithArgs: (String) -> Unit,
     navigateToWrite: () -> Unit
 ) {
 
@@ -73,7 +74,7 @@ fun HomeScreen(
                         HomeContent(
                             paddingValues = it,
                             diaryNotes = diaries.data,
-                            onClick = {}
+                            onClick = navigateToWriteWithArgs
                         )
                     }
 
