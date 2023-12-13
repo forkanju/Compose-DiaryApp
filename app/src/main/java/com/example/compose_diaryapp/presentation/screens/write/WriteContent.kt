@@ -112,7 +112,7 @@ fun WriteContent(
 
             TextField(
                 modifier = Modifier.fillMaxWidth(),
-                value = title,
+                value = description,
                 onValueChange = onDescriptionChanged,
                 placeholder = { Text(text = "Tell me about it.") },
                 colors = TextFieldDefaults.colors(
