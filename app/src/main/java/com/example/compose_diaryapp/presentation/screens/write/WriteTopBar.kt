@@ -24,14 +24,45 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.compose_diaryapp.model.Diary
 import com.example.compose_diaryapp.presentation.components.DisplayAlertDialog
+import com.example.compose_diaryapp.util.toInstant
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WriteTopBar(
     selectedDiary: Diary?,
+    moodName: () -> String,
     onDeleteConfirmed: () -> Unit,
     onBackPressed: () -> Unit
 ) {
+    val currentDate by remember { mutableStateOf(LocalDate.now()) }
+    val currentTime by remember { mutableStateOf(LocalTime.now()) }
+
+    val formattedDate = remember(key1 = currentDate) {
+        DateTimeFormatter
+            .ofPattern("dd MMM yyyy")
+            .format(currentDate).uppercase()
+    }
+    val formattedTime = remember(key1 = currentTime) {
+        DateTimeFormatter
+            .ofPattern("hh:mm a")
+            .format(currentTime).uppercase()
+    }
+
+    val selectedDiaryDateTime = remember(key1 = selectedDiary) {
+        if (selectedDiary != null) {
+            SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
+                .format(Date.from(selectedDiary.date.toInstant())).uppercase()
+        } else {
+            "Unknown"
+        }
+    }
+
     CenterAlignedTopAppBar(
         navigationIcon = {
             IconButton(onClick = { onBackPressed() }) {
@@ -46,7 +77,7 @@ fun WriteTopBar(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Happy",
+                    text = moodName(),
                     style = TextStyle(
                         fontSize = MaterialTheme.typography.titleLarge.fontSize,
                         fontWeight = FontWeight.Bold
@@ -54,7 +85,8 @@ fun WriteTopBar(
                 )
 
                 Text(
-                    text = "10 JAN 2023, 10:17 AM",
+                    text = if (selectedDiary != null) selectedDiaryDateTime
+                    else "$currentDate, $formattedTime",
                     style = TextStyle(
                         fontSize = MaterialTheme.typography.bodySmall.fontSize
                     )
@@ -124,7 +156,8 @@ fun DeleteDiaryAction(
 @Preview
 @Composable
 fun WriteTopBarPreview() {
-    WriteTopBar(selectedDiary = Diary().apply { }, onDeleteConfirmed = { /*TODO*/ }) {
+    WriteTopBar(
+        selectedDiary = Diary().apply { }, moodName = { "Happy" }, onDeleteConfirmed = { }) {
 
     }
 }
