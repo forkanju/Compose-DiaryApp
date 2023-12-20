@@ -6,6 +6,7 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import com.example.compose_diaryapp.model.Diary
 import com.example.compose_diaryapp.model.Mood
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -18,7 +19,8 @@ fun WriteScreen(
     onTitleChanged: (String) -> Unit,
     onDescriptionChanged: (String) -> Unit,
     onDeleteConfirmed: () -> Unit,
-    onBackPressed: () -> Unit
+    onBackPressed: () -> Unit,
+    onSaveClicked: (Diary) -> Unit
 ) {
 
     //Update the Mood when selecting an existing Diary
@@ -38,12 +40,14 @@ fun WriteScreen(
         },
         content = {
             WriteContent(
+                uiState = uiState,
                 pagerState = pagerState,
                 title = uiState.title,
                 onTitleChanged = onTitleChanged,
                 description = uiState.description,
                 onDescriptionChanged = onDescriptionChanged,
-                paddingValues = it
+                paddingValues = it,
+                onSaveClicked = onSaveClicked
             )
         }
     )

@@ -14,6 +14,7 @@ import com.example.compose_diaryapp.util.RequestState
 import io.realm.kotlin.types.ObjectId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class WriteViewModel(
     //it will allow us to access diary id that we are passing to our right screen.
@@ -40,22 +41,25 @@ class WriteViewModel(
     private fun fetchSelectedDiary() {
         if (uiState.selectedDiaryId != null) {
             viewModelScope.launch(Dispatchers.Main) {
-                val diary = MongoDB.getSelectedDiary(
+                MongoDB.getSelectedDiary(
                     diaryId = ObjectId.from(uiState.selectedDiaryId!!)
                 )
-                if (diary is RequestState.Success) {
-                    setSelectedDiary(diary = diary.data)
-                    setTitle(diary.data.title)
-                    setDescription(diary.data.description)
-                    setMood(Mood.valueOf(diary.data.mood))
-                }
+                    .collect { diary ->
+                        if (diary is RequestState.Success) {
+                            setSelectedDiary(diary = diary.data)
+                            setTitle(diary.data.title)
+                            setDescription(diary.data.description)
+                            setMood(Mood.valueOf(diary.data.mood))
+                        }
+                    }
             }
         }
     }
 
-    fun setSelectedDiary(diary: Diary){
+    private fun setSelectedDiary(diary: Diary) {
         uiState = uiState.copy(selectedDiary = diary)
     }
+
     fun setTitle(title: String) {
         uiState = uiState.copy(title = title)
     }
@@ -64,10 +68,28 @@ class WriteViewModel(
         uiState = uiState.copy(description = description)
     }
 
-    fun setMood(mood: Mood) {
+    private fun setMood(mood: Mood) {
         uiState = uiState.copy(mood = mood)
     }
 
+    fun insertDiary(
+        diary: Diary,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = MongoDB.insertDiary(diary = diary)
+            if (result is RequestState.Success) {
+                withContext(Dispatchers.Main) {
+                    onSuccess()
+                }
+            } else if (result is RequestState.Error) {
+                withContext(Dispatchers.Main) {
+                    onError(result.error.message.toString())
+                }
+            }
+        }
+    }
 
 }
 
