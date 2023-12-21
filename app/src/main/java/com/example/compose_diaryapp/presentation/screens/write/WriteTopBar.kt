@@ -57,142 +57,125 @@ fun WriteTopBar(
     var currentTime by remember { mutableStateOf(LocalTime.now()) }
 
     val formattedDate = remember(key1 = currentDate) {
-        DateTimeFormatter
-            .ofPattern("dd MMM yyyy")
-            .format(currentDate).uppercase()
+        DateTimeFormatter.ofPattern("dd MMM yyyy").format(currentDate).uppercase()
     }
     val formattedTime = remember(key1 = currentTime) {
-        DateTimeFormatter
-            .ofPattern("hh:mm a")
-            .format(currentTime).uppercase()
+        DateTimeFormatter.ofPattern("hh:mm a").format(currentTime).uppercase()
     }
 
     var dateTimeUpdated by remember { mutableStateOf(false) }
 
     val selectedDiaryDateTime = remember(key1 = selectedDiary) {
         if (selectedDiary != null) {
-            SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
-                .format(Date.from(selectedDiary.date.toInstant())).uppercase()
+            SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault()).format(
+                    Date.from(
+                        selectedDiary.date.toInstant()
+                    )
+                ).uppercase()
         } else {
             "Unknown"
         }
     }
 
-    CenterAlignedTopAppBar(
-        navigationIcon = {
-            IconButton(onClick = { onBackPressed() }) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                    contentDescription = "Arrow Back Icon"
-                )
-            }
-        },
-        title = {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = moodName(),
-                    style = TextStyle(
-                        fontSize = MaterialTheme.typography.titleLarge.fontSize,
-                        fontWeight = FontWeight.Bold
-                    )
-                )
-
-                Text(
-                    text = if (selectedDiary != null && dateTimeUpdated) "$formattedDate, $formattedTime"
-                    else if (selectedDiary != null) selectedDiaryDateTime
-                    else "$formattedDate, $formattedTime",
-                    style = TextStyle(
-                        fontSize = MaterialTheme.typography.bodySmall.fontSize
-                    )
-                )
-            }
-        },
-        actions = {
-            if (dateTimeUpdated) {
-                IconButton(onClick = {
-                    currentDate = LocalDate.now()
-                    currentTime = LocalTime.now()
-                    dateTimeUpdated = false
-                }) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Close Icon",
-                        tint = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-            } else {
-                IconButton(onClick = {
-                    dateDialog.show()
-                }) {
-                    Icon(
-                        imageVector = Icons.Default.DateRange,
-                        contentDescription = "Date Icon",
-                        tint = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-            }
-
-            if (selectedDiary != null) {
-                DeleteDiaryAction(
-                    selectedDiary = selectedDiary,
-                    onDeleteConfirmed = onDeleteConfirmed
-
-                )
-            }
+    CenterAlignedTopAppBar(navigationIcon = {
+        IconButton(onClick = { onBackPressed() }) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                contentDescription = "Arrow Back Icon"
+            )
         }
-    )
+    }, title = {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = moodName(), style = TextStyle(
+                    fontSize = MaterialTheme.typography.titleLarge.fontSize,
+                    fontWeight = FontWeight.Bold
+                )
+            )
 
-    CalendarDialog(
-        state = dateDialog,
-        selection = CalendarSelection.Date { localDate ->
-            currentDate = localDate
-            timeDialog.show()
-        },
-        config = CalendarConfig(monthSelection = true, yearSelection = true)
-    )
-
-    ClockDialog(
-        state = timeDialog,
-        selection = ClockSelection.HoursMinutes { hours, minutes ->
-            currentTime = LocalTime.of(hours, minutes)
-            dateTimeUpdated = true
-            onDateTimeUpdated(
-                ZonedDateTime.of(
-                    currentDate,
-                    currentTime,
-                    ZoneId.systemDefault()
+            Text(
+                text = if (selectedDiary != null && dateTimeUpdated) "$formattedDate, $formattedTime"
+                else if (selectedDiary != null) selectedDiaryDateTime
+                else "$formattedDate, $formattedTime", style = TextStyle(
+                    fontSize = MaterialTheme.typography.bodySmall.fontSize
                 )
             )
         }
+    }, actions = {
+        if (dateTimeUpdated) {
+            IconButton(onClick = {
+                currentDate = LocalDate.now()
+                currentTime = LocalTime.now()
+                dateTimeUpdated = false
+                onDateTimeUpdated(
+                    ZonedDateTime.of(
+                        currentDate, currentTime, ZoneId.systemDefault()
+                    )
+                )
+            }) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Close Icon",
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        } else {
+            IconButton(onClick = {
+                dateDialog.show()
+            }) {
+                Icon(
+                    imageVector = Icons.Default.DateRange,
+                    contentDescription = "Date Icon",
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
+
+        if (selectedDiary != null) {
+            DeleteDiaryAction(
+                selectedDiary = selectedDiary, onDeleteConfirmed = onDeleteConfirmed
+
+            )
+        }
+    })
+
+    CalendarDialog(
+        state = dateDialog, selection = CalendarSelection.Date { localDate ->
+            currentDate = localDate
+            timeDialog.show()
+        }, config = CalendarConfig(monthSelection = true, yearSelection = true)
     )
+
+    ClockDialog(state = timeDialog, selection = ClockSelection.HoursMinutes { hours, minutes ->
+        currentTime = LocalTime.of(hours, minutes)
+        dateTimeUpdated = true
+        onDateTimeUpdated(
+            ZonedDateTime.of(
+                currentDate, currentTime, ZoneId.systemDefault()
+            )
+        )
+    })
 
 
 }
 
 @Composable
 fun DeleteDiaryAction(
-    selectedDiary: Diary?,
-    onDeleteConfirmed: () -> Unit
+    selectedDiary: Diary?, onDeleteConfirmed: () -> Unit
 ) {
 
     var expanded by remember { mutableStateOf(false) }
     var openDialog by remember { mutableStateOf(false) }
 
-    DropdownMenu(
-        expanded = expanded,
-        onDismissRequest = { expanded = false }
-    ) {
-        DropdownMenuItem(
-            text = {
-                Text(text = "Delete")
-            },
-            onClick = {
-                openDialog = true
-                expanded = false
-            }
-        )
+    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+        DropdownMenuItem(text = {
+            Text(text = "Delete")
+        }, onClick = {
+            openDialog = true
+            expanded = false
+        })
     }
 
     DisplayAlertDialog(
@@ -215,8 +198,7 @@ fun DeleteDiaryAction(
 @Preview
 @Composable
 fun WriteTopBarPreview() {
-    WriteTopBar(
-        selectedDiary = Diary().apply { },
+    WriteTopBar(selectedDiary = Diary().apply { },
         moodName = { "Happy" },
         onDateTimeUpdated = {},
         onDeleteConfirmed = { }) {
