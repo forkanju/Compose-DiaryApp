@@ -218,6 +218,7 @@ fun NavGraphBuilder.writeRoute(
             onTitleChanged = { viewModel.setTitle(title = it) },
             onDescriptionChanged = { viewModel.setDescription(description = it) },
             onDeleteConfirmed = {},
+            onDateTimeUpdated={ viewModel.updateDateTime(zonedDateTime = it)},
             onBackPressed = onBackPressed,
             onSaveClicked = {
                 viewModel.upsertDiary(
