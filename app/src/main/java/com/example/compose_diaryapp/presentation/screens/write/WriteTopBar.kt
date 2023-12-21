@@ -68,10 +68,10 @@ fun WriteTopBar(
     val selectedDiaryDateTime = remember(key1 = selectedDiary) {
         if (selectedDiary != null) {
             SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault()).format(
-                    Date.from(
-                        selectedDiary.date.toInstant()
-                    )
-                ).uppercase()
+                Date.from(
+                    selectedDiary.date.toInstant()
+                )
+            ).uppercase()
         } else {
             "Unknown"
         }
