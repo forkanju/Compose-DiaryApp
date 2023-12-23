@@ -15,6 +15,7 @@ import com.example.compose_diaryapp.util.toRealmInstant
 import io.realm.kotlin.types.ObjectId
 import io.realm.kotlin.types.RealmInstant
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.ZonedDateTime
@@ -47,6 +48,9 @@ class WriteViewModel(
                 MongoDB.getSelectedDiary(
                     diaryId = ObjectId.from(uiState.selectedDiaryId!!)
                 )
+                    .catch {
+                        emit(RequestState.Error(Exception("Diary is already deleted.")))
+                    }
                     .collect { diary ->
                         if (diary is RequestState.Success) {
                             setSelectedDiary(diary = diary.data)
@@ -149,6 +153,26 @@ class WriteViewModel(
         }
     }
 
+
+    fun deleteDiary(
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (uiState.selectedDiaryId != null) {
+                val result = MongoDB.deleteDiary(id = ObjectId.from(uiState.selectedDiaryId!!))
+                if (result is RequestState.Success) {
+                    withContext(Dispatchers.Main) {
+                        onSuccess()
+                    }
+                } else if (result is RequestState.Error) {
+                    withContext(Dispatchers.Main) {
+                        onError(result.error.message.toString())
+                    }
+                }
+            }
+        }
+    }
 }
 
 //UI Properties for our WriteScreen

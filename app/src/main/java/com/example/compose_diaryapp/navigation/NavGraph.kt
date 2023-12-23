@@ -2,11 +2,13 @@ package com.example.compose_diaryapp.navigation
 
 import android.os.Build
 import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -200,6 +202,7 @@ fun NavGraphBuilder.writeRoute(
         })
     ) {
         val viewModel: WriteViewModel = viewModel()
+        val context = LocalContext.current
         val uiState = viewModel.uiState
         val pagerState = rememberPagerState(pageCount = { Mood.values().size })
 
@@ -217,15 +220,26 @@ fun NavGraphBuilder.writeRoute(
             pagerState = pagerState,
             onTitleChanged = { viewModel.setTitle(title = it) },
             onDescriptionChanged = { viewModel.setDescription(description = it) },
-            onDeleteConfirmed = {},
-            onDateTimeUpdated={ viewModel.updateDateTime(zonedDateTime = it)},
+            onDeleteConfirmed = {
+                viewModel.deleteDiary(
+                    onSuccess = {
+                        Toast.makeText(context, "Deleted", Toast.LENGTH_SHORT).show()
+                        onBackPressed()
+                    },
+                    onError = {
+                        Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+                    }
+                )
+            },
+            onDateTimeUpdated = { viewModel.updateDateTime(zonedDateTime = it) },
             onBackPressed = onBackPressed,
             onSaveClicked = {
                 viewModel.upsertDiary(
                     diary = it.apply { mood = Mood.values()[pageNumber].name },
                     onSuccess = { onBackPressed() },
-                    onError = { error ->
+                    onError = {error  ->
                         Log.d("NavGraph", "writeRoute: $error")
+                        Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
                     }
                 )
             }
