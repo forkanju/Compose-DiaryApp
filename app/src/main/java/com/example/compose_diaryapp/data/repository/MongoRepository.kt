@@ -1,7 +1,7 @@
 package com.example.compose_diaryapp.data.repository
 
 import com.example.compose_diaryapp.model.Diary
-import com.example.compose_diaryapp.util.RequestState
+import com.example.compose_diaryapp.model.RequestState
 import io.realm.kotlin.types.ObjectId
 import kotlinx.coroutines.flow.Flow
 

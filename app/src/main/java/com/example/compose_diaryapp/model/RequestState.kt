@@ -1,4 +1,4 @@
-package com.example.compose_diaryapp.util
+package com.example.compose_diaryapp.model
 
 sealed class RequestState<out T> {
     object Idle : RequestState<Nothing>()
