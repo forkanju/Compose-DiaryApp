@@ -17,7 +17,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.compose_diaryapp.data.repository.MongoDB
+import com.example.compose_diaryapp.model.GalleryImage
 import com.example.compose_diaryapp.model.Mood
+import com.example.compose_diaryapp.model.RequestState
+import com.example.compose_diaryapp.model.rememberGalleryState
 import com.example.compose_diaryapp.presentation.components.DisplayAlertDialog
 import com.example.compose_diaryapp.presentation.screens.auth.AuthenticationScreen
 import com.example.compose_diaryapp.presentation.screens.auth.AuthenticationViewModel
@@ -27,7 +30,6 @@ import com.example.compose_diaryapp.presentation.screens.write.WriteScreen
 import com.example.compose_diaryapp.presentation.screens.write.WriteViewModel
 import com.example.compose_diaryapp.util.Constants.APP_ID
 import com.example.compose_diaryapp.util.Constants.WRITE_SCREEN_ARGUMENT_KEY
-import com.example.compose_diaryapp.util.RequestState
 import com.stevdzasan.messagebar.rememberMessageBarState
 import com.stevdzasan.onetap.rememberOneTapSignInState
 import io.realm.kotlin.mongodb.App
@@ -205,7 +207,7 @@ fun NavGraphBuilder.writeRoute(
         val context = LocalContext.current
         val uiState = viewModel.uiState
         val pagerState = rememberPagerState(pageCount = { Mood.values().size })
-
+        val galleryState = rememberGalleryState()
         val pageNumber by remember {
             derivedStateOf { pagerState.currentPage }
         }
@@ -218,6 +220,7 @@ fun NavGraphBuilder.writeRoute(
             uiState = uiState,
             moodName = { Mood.values()[pageNumber].name },
             pagerState = pagerState,
+            galleryState = galleryState,
             onTitleChanged = { viewModel.setTitle(title = it) },
             onDescriptionChanged = { viewModel.setDescription(description = it) },
             onDeleteConfirmed = {
@@ -237,10 +240,18 @@ fun NavGraphBuilder.writeRoute(
                 viewModel.upsertDiary(
                     diary = it.apply { mood = Mood.values()[pageNumber].name },
                     onSuccess = { onBackPressed() },
-                    onError = {error  ->
+                    onError = { error ->
                         Log.d("NavGraph", "writeRoute: $error")
                         Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
                     }
+                )
+            },
+            onImageSelect = {
+                galleryState.addImage(
+                    GalleryImage(
+                        image = it,
+                        remoteImagePath = ""
+                    )
                 )
             }
         )

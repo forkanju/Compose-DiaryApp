@@ -1,5 +1,6 @@
 package com.example.compose_diaryapp.presentation.screens.write
 
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
@@ -42,7 +43,9 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.compose_diaryapp.model.Diary
+import com.example.compose_diaryapp.model.GalleryState
 import com.example.compose_diaryapp.model.Mood
+import com.example.compose_diaryapp.presentation.components.GalleryUploader
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -50,12 +53,14 @@ import kotlinx.coroutines.launch
 fun WriteContent(
     uiState: UiState,
     pagerState: PagerState,
+    galleryState: GalleryState,
     title: String,
     onTitleChanged: (String) -> Unit,
     description: String,
     onDescriptionChanged: (String) -> Unit,
     paddingValues: PaddingValues,
-    onSaveClicked: (Diary) -> Unit
+    onSaveClicked: (Diary) -> Unit,
+    onImageSelect: (Uri) -> Unit
 
 ) {
     val scrollState = rememberScrollState()
@@ -161,6 +166,13 @@ fun WriteContent(
 
         Column(verticalArrangement = Arrangement.Bottom) {
             Spacer(modifier = Modifier.height(12.dp))
+            GalleryUploader(
+                galleryState = galleryState,
+                onAddClicked = {},
+                onImageSelect = onImageSelect,
+                onImageClicked = {}
+            )
+            Spacer(modifier = Modifier.height(12.dp))
             Button(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -197,11 +209,13 @@ fun WriteContentPreview() {
     WriteContent(
         uiState = UiState(),
         pagerState = rememberPagerState(pageCount = { Mood.values().size }),
+        galleryState = GalleryState(),
         title = "",
         onTitleChanged = {},
         description = "",
         onDescriptionChanged = {},
         paddingValues = PaddingValues(),
-        onSaveClicked = {}
+        onSaveClicked = {},
+        onImageSelect = {}
     )
 }
