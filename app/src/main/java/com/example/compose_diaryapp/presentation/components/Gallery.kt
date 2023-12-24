@@ -128,8 +128,6 @@ fun GalleryUploader(
                 galleryState.images.size - numberOfVisibleImages.value
             }
         }
-        val list = listOf(1, 2, 3, 3)
-        list.take(3)
 
         Row {
             AddImageButton(
