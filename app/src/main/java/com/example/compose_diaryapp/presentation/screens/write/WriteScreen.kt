@@ -7,7 +7,12 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.example.compose_diaryapp.model.Diary
+import com.example.compose_diaryapp.model.GalleryImage
 import com.example.compose_diaryapp.model.GalleryState
 import com.example.compose_diaryapp.model.Mood
 import java.time.ZonedDateTime
@@ -28,7 +33,7 @@ fun WriteScreen(
     onSaveClicked: (Diary) -> Unit,
     onImageSelect: (Uri) -> Unit
 ) {
-
+    var selectedGalleryImage by remember { mutableStateOf<GalleryImage?>(null) }
     //Update the Mood when selecting an existing Diary
     //LaunchedEffect will trigger when uiState.mood will be changed.
     LaunchedEffect(key1 = uiState.mood) {
@@ -56,7 +61,8 @@ fun WriteScreen(
                 onDescriptionChanged = onDescriptionChanged,
                 paddingValues = it,
                 onSaveClicked = onSaveClicked,
-                onImageSelect = onImageSelect
+                onImageSelect = onImageSelect,
+                onImageClicked = { selectedGalleryImage = it }
             )
         }
     )

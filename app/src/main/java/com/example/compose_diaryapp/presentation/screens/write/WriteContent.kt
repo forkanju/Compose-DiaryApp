@@ -43,12 +43,13 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.compose_diaryapp.model.Diary
+import com.example.compose_diaryapp.model.GalleryImage
 import com.example.compose_diaryapp.model.GalleryState
 import com.example.compose_diaryapp.model.Mood
 import com.example.compose_diaryapp.presentation.components.GalleryUploader
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun WriteContent(
     uiState: UiState,
@@ -60,7 +61,8 @@ fun WriteContent(
     onDescriptionChanged: (String) -> Unit,
     paddingValues: PaddingValues,
     onSaveClicked: (Diary) -> Unit,
-    onImageSelect: (Uri) -> Unit
+    onImageSelect: (Uri) -> Unit,
+    onImageClicked: (GalleryImage) -> Unit
 
 ) {
     val scrollState = rememberScrollState()
@@ -204,20 +206,20 @@ fun WriteContent(
 
 }
 
-@OptIn(ExperimentalFoundationApi::class)
-@Preview(showBackground = true)
-@Composable
-fun WriteContentPreview() {
-    WriteContent(
-        uiState = UiState(),
-        pagerState = rememberPagerState(pageCount = { Mood.values().size }),
-        galleryState = GalleryState(),
-        title = "",
-        onTitleChanged = {},
-        description = "",
-        onDescriptionChanged = {},
-        paddingValues = PaddingValues(),
-        onSaveClicked = {},
-        onImageSelect = {}
-    )
-}
+//@OptIn(ExperimentalFoundationApi::class)
+//@Preview(showBackground = true)
+//@Composable
+//fun WriteContentPreview() {
+//    WriteContent(
+//        uiState = UiState(),
+//        pagerState = rememberPagerState(pageCount = { Mood.values().size }),
+//        galleryState = GalleryState(),
+//        title = "",
+//        onTitleChanged = {},
+//        description = "",
+//        onDescriptionChanged = {},
+//        paddingValues = PaddingValues(),
+//        onSaveClicked = {},
+//        onImageSelect = on
+//    )
+//}

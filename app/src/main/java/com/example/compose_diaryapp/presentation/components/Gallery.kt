@@ -1,25 +1,16 @@
 package com.example.compose_diaryapp.presentation.components
 
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Shapes
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
@@ -103,22 +94,26 @@ fun GalleryUploader(
     spaceBetween: Dp = 12.dp,
     onAddClicked: () -> Unit,
     onImageSelect: (Uri) -> Unit,
-    onImageClicked: (GalleryImage) -> Unit
+    onImageClicked: (GalleryImage) -> Unit,
 ) {
     val multiplePhotoPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(maxItems = 8),
     ) { images ->
+        if (images.isNotEmpty()){
+            Log.d("PhotoPicker", "Number of items selected: ${images.size}")
+        }
         images.forEach {
             onImageSelect(it)
         }
     }
+
 
     BoxWithConstraints(modifier = modifier) {
         val numberOfVisibleImages = remember {
             derivedStateOf {
                 max(
                     a = 0,
-                    b = this.maxWidth.div(spaceBetween + imageSize).toInt().minus(2)
+                    b = this.maxWidth.div(spaceBetween + imageSize).toInt().minus(1)
                 )
             }
         }
@@ -144,6 +139,8 @@ fun GalleryUploader(
             )
             Spacer(modifier = Modifier.width(spaceBetween))
             galleryState.images.take(numberOfVisibleImages.value).forEach { galleryImage ->
+
+                Log.d("PhotoPicker", "galleryImage: $galleryImage")
                 AsyncImage(
                     modifier = Modifier
                         .clip(imageShape)
@@ -158,7 +155,6 @@ fun GalleryUploader(
                 )
                 Spacer(modifier = Modifier.width(spaceBetween))
             }
-
             if (remainingImages.value > 0) {
                 LastImageOverlay(
                     imageSize = imageSize,
@@ -169,7 +165,6 @@ fun GalleryUploader(
         }
     }
 }
-
 
 @Composable
 fun AddImageButton(

@@ -246,10 +246,11 @@ fun NavGraphBuilder.writeRoute(
                     }
                 )
             },
-            onImageSelect = {
+            onImageSelect = { image ->
+                Log.d("PhotoPicker", "NavGraph: $image")
                 galleryState.addImage(
                     GalleryImage(
-                        image = it,
+                        image = image,
                         remoteImagePath = ""
                     )
                 )
