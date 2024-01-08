@@ -107,7 +107,7 @@ fun NavGraphBuilder.authenticationRoute(
                 oneTapState.open()
                 viewModel.setLoading(true)
             },
-            onTokenIdReceived = { tokenId ->
+            onSuccessfulFirebaseSignIn = { tokenId ->
                 viewModel.signInWithMongodbAtlas(
                     tokenId = tokenId,
                     onSuccess = {
@@ -121,6 +121,10 @@ fun NavGraphBuilder.authenticationRoute(
                     }
                 )
 
+            },
+            onFailedFirebaseSignIn = { error ->
+                messageBarState.addError(error)
+                viewModel.setLoading(false)
             },
             onDialogDismissed = { message ->
                 messageBarState.addError(Exception(message))

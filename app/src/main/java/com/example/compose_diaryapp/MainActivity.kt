@@ -13,6 +13,7 @@ import com.example.compose_diaryapp.navigation.Screen
 import com.example.compose_diaryapp.navigation.SetupNavGraph
 import com.example.compose_diaryapp.ui.theme.ComposeDiaryAppTheme
 import com.example.compose_diaryapp.util.Constants.APP_ID
+import com.google.firebase.FirebaseApp
 import io.realm.kotlin.mongodb.App
 
 class MainActivity : ComponentActivity() {
@@ -27,6 +28,7 @@ class MainActivity : ComponentActivity() {
             keepSplashOpened
         }
         WindowCompat.setDecorFitsSystemWindows(window, false)
+        FirebaseApp.initializeApp(this)
         setContent {
             ComposeDiaryAppTheme {
                 val navController = rememberNavController()
