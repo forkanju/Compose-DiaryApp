@@ -1,5 +1,7 @@
 package com.example.compose_diaryapp.presentation.screens.write
 
+import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -8,10 +10,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.compose_diaryapp.data.repository.MongoDB
 import com.example.compose_diaryapp.model.Diary
+import com.example.compose_diaryapp.model.GalleryImage
+import com.example.compose_diaryapp.model.GalleryState
 import com.example.compose_diaryapp.model.Mood
 import com.example.compose_diaryapp.util.Constants.WRITE_SCREEN_ARGUMENT_KEY
 import com.example.compose_diaryapp.model.RequestState
 import com.example.compose_diaryapp.util.toRealmInstant
+import com.google.firebase.auth.FirebaseAuth
 import io.realm.kotlin.types.ObjectId
 import io.realm.kotlin.types.RealmInstant
 import kotlinx.coroutines.Dispatchers
@@ -24,7 +29,7 @@ class WriteViewModel(
     //it will allow us to access diary id that we are passing to our right screen.
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-
+    val galleryState = GalleryState()
     //will hold ui state
     var uiState by mutableStateOf(UiState())
         private set
@@ -173,7 +178,22 @@ class WriteViewModel(
             }
         }
     }
+
+    fun addImage(image: Uri, imageType: String){
+        val remoteImagePath = "images/${FirebaseAuth.getInstance().currentUser?.uid}/"+
+                "${image.lastPathSegment}-${System.currentTimeMillis()}.$imageType"
+        Log.d("WriteViewModel", remoteImagePath)
+        galleryState.addImage(
+            GalleryImage(
+                image = image,
+                remoteImagePath = remoteImagePath
+            )
+        )
+    }
 }
+
+
+
 
 //UI Properties for our WriteScreen
 data class UiState(

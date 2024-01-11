@@ -17,10 +17,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.compose_diaryapp.data.repository.MongoDB
-import com.example.compose_diaryapp.model.GalleryImage
 import com.example.compose_diaryapp.model.Mood
 import com.example.compose_diaryapp.model.RequestState
-import com.example.compose_diaryapp.model.rememberGalleryState
 import com.example.compose_diaryapp.presentation.components.DisplayAlertDialog
 import com.example.compose_diaryapp.presentation.screens.auth.AuthenticationScreen
 import com.example.compose_diaryapp.presentation.screens.auth.AuthenticationViewModel
@@ -211,7 +209,7 @@ fun NavGraphBuilder.writeRoute(
         val context = LocalContext.current
         val uiState = viewModel.uiState
         val pagerState = rememberPagerState(pageCount = { Mood.values().size })
-        val galleryState = rememberGalleryState()
+        val galleryState = viewModel.galleryState
         val pageNumber by remember {
             derivedStateOf { pagerState.currentPage }
         }
@@ -250,14 +248,10 @@ fun NavGraphBuilder.writeRoute(
                     }
                 )
             },
-            onImageSelect = { image ->
-                Log.d("PhotoPicker", "NavGraph: $image")
-                galleryState.addImage(
-                    GalleryImage(
-                        image = image,
-                        remoteImagePath = ""
-                    )
-                )
+            onImageSelect = {
+                Log.d("PhotoPicker", "NavGraph: $it")
+                val type = context.contentResolver.getType(it)?.split("/")?.last() ?: "jpg"
+                viewModel.addImage(image = it, imageType = type)
             }
         )
     }
