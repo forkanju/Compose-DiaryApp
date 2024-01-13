@@ -17,6 +17,7 @@ import com.example.compose_diaryapp.util.Constants.WRITE_SCREEN_ARGUMENT_KEY
 import com.example.compose_diaryapp.model.RequestState
 import com.example.compose_diaryapp.util.toRealmInstant
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.storage.FirebaseStorage
 import io.realm.kotlin.types.ObjectId
 import io.realm.kotlin.types.RealmInstant
 import kotlinx.coroutines.Dispatchers
@@ -123,6 +124,7 @@ class WriteViewModel(
             }
         })
         if (result is RequestState.Success) {
+            uploadImageToFirebase()
             withContext(Dispatchers.Main) {
                 onSuccess()
             }
@@ -148,6 +150,7 @@ class WriteViewModel(
             }
         })
         if (result is RequestState.Success) {
+            uploadImageToFirebase()
             withContext(Dispatchers.Main) {
                 onSuccess()
             }
@@ -190,6 +193,16 @@ class WriteViewModel(
             )
         )
     }
+
+
+    private fun uploadImageToFirebase(){
+        val storage = FirebaseStorage.getInstance().reference
+        galleryState.images.forEach { galleryImage ->
+            val imagePath = storage.child(galleryImage.remoteImagePath)
+            imagePath.putFile(galleryImage.image)
+        }
+    }
+
 }
 
 
