@@ -207,21 +207,3 @@ fun WriteContent(
     }
 
 }
-
-//@OptIn(ExperimentalFoundationApi::class)
-//@Preview(showBackground = true)
-//@Composable
-//fun WriteContentPreview() {
-//    WriteContent(
-//        uiState = UiState(),
-//        pagerState = rememberPagerState(pageCount = { Mood.values().size }),
-//        galleryState = GalleryState(),
-//        title = "",
-//        onTitleChanged = {},
-//        description = "",
-//        onDescriptionChanged = {},
-//        paddingValues = PaddingValues(),
-//        onSaveClicked = {},
-//        onImageSelect = on
-//    )
-//}

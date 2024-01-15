@@ -13,10 +13,13 @@ import com.example.compose_diaryapp.model.Diary
 import com.example.compose_diaryapp.model.GalleryImage
 import com.example.compose_diaryapp.model.GalleryState
 import com.example.compose_diaryapp.model.Mood
-import com.example.compose_diaryapp.util.Constants.WRITE_SCREEN_ARGUMENT_KEY
 import com.example.compose_diaryapp.model.RequestState
+import com.example.compose_diaryapp.util.Constants.WRITE_SCREEN_ARGUMENT_KEY
+import com.example.compose_diaryapp.util.fetchImagesFromFirebase
 import com.example.compose_diaryapp.util.toRealmInstant
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 import com.google.firebase.storage.FirebaseStorage
 import io.realm.kotlin.types.ObjectId
 import io.realm.kotlin.types.RealmInstant
@@ -31,6 +34,7 @@ class WriteViewModel(
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     val galleryState = GalleryState()
+
     //will hold ui state
     var uiState by mutableStateOf(UiState())
         private set
@@ -63,6 +67,20 @@ class WriteViewModel(
                             setTitle(diary.data.title)
                             setDescription(diary.data.description)
                             setMood(Mood.valueOf(diary.data.mood))
+
+                            fetchImagesFromFirebase(
+                                remoteImagePaths = diary.data.images,
+                                onImageDownload = { downloadedImage ->
+                                    galleryState.addImage(
+                                        GalleryImage(
+                                            image = downloadedImage,
+                                            remoteImagePath = extractImagePath(
+                                                fullImageUrl = downloadedImage.toString()
+                                            ),
+                                        )
+                                    )
+                                }
+                            )
                         }
                     }
             }
@@ -182,8 +200,8 @@ class WriteViewModel(
         }
     }
 
-    fun addImage(image: Uri, imageType: String){
-        val remoteImagePath = "images/${FirebaseAuth.getInstance().currentUser?.uid}/"+
+    fun addImage(image: Uri, imageType: String) {
+        val remoteImagePath = "images/${FirebaseAuth.getInstance().currentUser?.uid}/" +
                 "${image.lastPathSegment}-${System.currentTimeMillis()}.$imageType"
         Log.d("WriteViewModel", remoteImagePath)
         galleryState.addImage(
@@ -195,7 +213,7 @@ class WriteViewModel(
     }
 
 
-    private fun uploadImageToFirebase(){
+    private fun uploadImageToFirebase() {
         val storage = FirebaseStorage.getInstance().reference
         galleryState.images.forEach { galleryImage ->
             val imagePath = storage.child(galleryImage.remoteImagePath)
@@ -203,9 +221,15 @@ class WriteViewModel(
         }
     }
 
+
+    private fun extractImagePath(fullImageUrl: String): String {
+        val chunks = fullImageUrl.split("%2F")
+        val imageName = chunks[2].split("?").first()
+        return "images/${Firebase.auth.currentUser?.uid}/$imageName"
+    }
+
+
 }
-
-
 
 
 //UI Properties for our WriteScreen
